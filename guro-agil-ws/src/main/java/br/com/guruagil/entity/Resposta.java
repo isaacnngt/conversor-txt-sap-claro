@@ -28,6 +28,10 @@ public class Resposta {
     @Column(name = "DT_ALTERACAO")
     private LocalDateTime dataAlteracao;
 
+    @ManyToOne
+    @JoinColumn(name = "ID_CICLO_FK")
+    private Ciclo ciclo;
+
     // Getters e Setters
     public Long getId() {
         return id;
@@ -86,5 +90,13 @@ public class Resposta {
     @PreUpdate
     public void preUpdate() {
         this.dataAlteracao = LocalDateTime.now();
+    }
+
+    public Ciclo getCiclo() {
+        return ciclo;
+    }
+
+    public void setCiclo(Ciclo ciclo) {
+        this.ciclo = ciclo;
     }
 }

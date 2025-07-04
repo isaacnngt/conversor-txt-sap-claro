@@ -29,6 +29,10 @@ public class Pergunta {
     @OneToMany(mappedBy = "pergunta", cascade = CascadeType.ALL)
     private List<Resposta> respostas = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "ID_CICLO_FK")
+    private Ciclo ciclo;
+
     // Getters e Setters
     public Long getId() {
         return id;
@@ -87,6 +91,14 @@ public class Pergunta {
     @PreUpdate
     public void preUpdate() {
         this.dataAlteracao = LocalDateTime.now();
+    }
+
+    public Ciclo getCiclo() {
+        return ciclo;
+    }
+
+    public void setCiclo(Ciclo ciclo) {
+        this.ciclo = ciclo;
     }
 }
 

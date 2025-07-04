@@ -18,6 +18,8 @@ public class ImportacaoResultadoDTO {
         return sucesso;
     }
 
+    //getters e setters
+
     public void setSucesso(boolean sucesso) {
         this.sucesso = sucesso;
     }

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Conversor TXT para Excel/CSV | Claro</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome para ícones -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --claro-red: #8B0000;
+            --claro-red-light: #A52A2A;
+            --claro-red-dark: #660000;
+            --claro-red-accent: #B22222;
+            --claro-gray: #2C2C2C;
+            --claro-light-gray: #F5F5F5;
+            --claro-white: #FFFFFF;
+            --claro-wine: #722F37;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--claro-red-dark) 0%, var(--claro-red) 30%, var(--claro-wine) 70%, var(--claro-gray) 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header-section h1 {
+            font-size: 3.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            color: var(--claro-white);
+        }
+
+        .company-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .company-logo {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 15px 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .company-logo:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .company-logo img {
+            height: 40px;
+            max-width: 120px;
+            object-fit: contain;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .claro-logo-text {
+            color: var(--claro-white);
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sap-logo-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #0F7CC9;
+            letter-spacing: 2px;
+        }
+
+        .sap-logo-bg {
+            background: linear-gradient(135deg, #0F7CC9 0%, #0B5FA0 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neoris-logo-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #5A5A5A;
+            letter-spacing: 1px;
+        }
+
+        .epam-logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #5A5A5A;
+            letter-spacing: 2px;
+        }
+
+        .claro-circle-logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #E60012 0%, #C40010 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto;
+            box-shadow: 0 4px 12px rgba(230, 0, 18, 0.4);
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(139, 0, 0, 0.2);
+        }
+
+        .upload-area {
+            border: 3px dashed var(--claro-red);
+            border-radius: 15px;
+            padding: 50px;
+            text-align: center;
+            background: linear-gradient(45deg, #fff5f5 0%, #ffe6e6 100%);
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--claro-red-light);
+            background: linear-gradient(45deg, #f5e6e6 0%, #f0d0d0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 0, 0, 0.3);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--claro-red);
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover .upload-icon {
+            color: var(--claro-red-light);
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 60%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            80% { transform: translateY(-5px); }
+        }
+
+        .preview-section {
+            background: linear-gradient(135deg, #f8f0f0 0%, #f0e6e6 100%);
+            border: 2px solid var(--claro-red);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border: 2px solid #28a745;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            color: #155724;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .file-path-display {
+            background: var(--claro-light-gray);
+            border: 2px solid var(--claro-red);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .directory-btn {
+            margin: 5px;
+            border-radius: 25px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            border: 2px solid var(--claro-red);
+            color: var(--claro-red);
+            background: var(--claro-white);
+        }
+
+        .directory-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.4);
+            background: var(--claro-red);
+            color: var(--claro-white);
+            border-color: var(--claro-red);
+        }
+
+        .directory-btn.active {
+            background: var(--claro-red);
+            color: var(--claro-white);
+            border-color: var(--claro-red);
+        }
+
+        .format-card {
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: var(--claro-white);
+        }
+
+        .format-card:hover {
+            border-color: var(--claro-red);
+            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.3);
+        }
+
+        .format-card.selected {
+            border-color: var(--claro-red);
+            background: linear-gradient(135deg, #f8f0f0 0%, #f0e6e6 100%);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--claro-red) 0%, var(--claro-red-dark) 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: var(--claro-white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 0, 0, 0.5);
+            background: linear-gradient(135deg, var(--claro-red-light) 0%, var(--claro-red) 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--claro-red) 0%, var(--claro-wine) 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 15px 40px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            color: var(--claro-white);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(139, 0, 0, 0.6);
+            background: linear-gradient(135deg, var(--claro-red-light) 0%, var(--claro-red) 100%);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--claro-red);
+            color: var(--claro-red);
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--claro-red);
+            border-color: var(--claro-red);
+            color: var(--claro-white);
+            transform: translateY(-2px);
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .table-responsive {
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 10px;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background: var(--claro-red);
+            color: white;
+            border: none;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(139, 0, 0, 0.1);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.9);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .card-header.bg-primary {
+            background: linear-gradient(135deg, var(--claro-red) 0%, var(--claro-red-dark) 100%) !important;
+            color: var(--claro-white);
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: var(--claro-red);
+            color: var(--claro-red-dark);
+        }
+
+        .text-primary {
+            color: var(--claro-red) !important;
+        }
+
+        .text-success {
+            color: #28a745 !important;
+        }
+
+        .text-info {
+            color: var(--claro-red) !important;
+        }
+
+        .stats-card {
+            background: var(--claro-white);
+            border: 2px solid var(--claro-red);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(227, 6, 19, 0.2);
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--claro-red);
+        }
+
+        .stats-label {
+            color: var(--claro-gray);
+            font-weight: 600;
+        }
+
+        .claro-divider {
+            height: 3px;
+            background: linear-gradient(90deg, var(--claro-red) 0%, var(--claro-red-light) 50%, var(--claro-red) 100%);
+            border: none;
+            margin: 30px 0;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+<div class="container main-container">
+    <!-- Cabeçalho -->
+    <div class="header-section">
+        <!-- Logos das Empresas -->
+        <div class="company-logos">
+            <!-- Logo Claro -->
+            <div class="company-logo">
+                <div class="claro-circle-logo">
+                    claro
+                </div>
+            </div>
+
+            <!-- Logo SAP -->
+            <div class="company-logo">
+                <div class="sap-logo-bg">
+                    SAP
+                </div>
+            </div>
+
+            <!-- Logo Neoris -->
+            <div class="company-logo">
+                <span class="neoris-logo-text">neoris</span>
+            </div>
+
+            <!-- Logo EPAM -->
+            <div class="company-logo">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <div style="width: 12px; height: 12px; background: #00C7D7; transform: rotate(45deg);"></div>
+                    <span class="epam-logo-text">epam</span>
+                    <div style="width: 0; height: 0; border-left: 8px solid #00C7D7; border-top: 8px solid transparent; border-bottom: 8px solid transparent;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="claro-logo-text">
+            Solução Corporativa
+        </div>
+        <h2 class="mb-3">Conversor TXT para Excel/CSV</h2>
+        <p class="lead fs-5">Transforme seus arquivos TXT pipe-delimited (|) em planilhas organizadas!</p>
+    </div>
+
+    <div class="main-card">
+        <!-- Alertas -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>❌ Erro:</strong> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Seção de Sucesso -->
+        <div th:if="${success}" class="success-section">
+            <h4><i class="fas fa-check-circle me-2"></i><span th:text="${message}">Arquivo convertido com sucesso!</span></h4>
+
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <h5><i class="fas fa-folder-open me-2"></i>Arquivo salvo em:</h5>
+                    <div class="file-path-display" th:text="${filePath}"></div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card">
+                        <h5><i class="fas fa-info-circle me-2"></i>Informações:</h5>
+                        <p class="mb-1"><strong>Nome:</strong> <span th:text="${filename}"></span></p>
+                        <p class="mb-1"><strong>Tamanho:</strong> <span th:text="${fileSize}"></span></p>
+                        <p class="mb-1"><strong>Registros:</strong> <span th:text="${analysis?.totalRecords}"></span></p>
+                        <p class="mb-1"><strong>Colunas:</strong> <span th:text="${analysis?.totalColumns}"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3">
+                <i class="fas fa-lightbulb me-2"></i>
+                <strong>Dica:</strong> Abra o explorador de arquivos e navegue até a pasta especificada para encontrar seu arquivo.
+            </div>
+        </div>
+
+        <!-- Formulário Principal -->
+        <form th:action="@{/upload}" method="post" enctype="multipart/form-data" id="uploadForm">
+
+            <!-- Área de Upload -->
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h4>📁 Selecione ou arraste seu arquivo TXT</h4>
+                <p class="text-muted mb-4">Clique aqui ou arraste e solte seu arquivo</p>
+
+                <input type="file"
+                       class="d-none"
+                       id="fileInput"
+                       name="file"
+                       accept=".txt"
+                       required>
+
+                <div id="fileInfo" class="hidden mt-3">
+                    <div class="alert alert-success">
+                        <i class="fas fa-file-alt me-2"></i>
+                        <span id="fileName"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Preview -->
+            <div id="previewSection" class="preview-section hidden">
+                <h4><i class="fas fa-eye me-2"></i>Preview dos Dados</h4>
+                <div id="previewContent"></div>
+            </div>
+
+            <hr class="claro-divider">
+
+            <!-- Configurações -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-cog me-2"></i>Configurações de Conversão</h4>
+                </div>
+                <div class="card-body">
+
+                    <!-- Formato de Saída -->
+                    <div class="mb-4">
+                        <label class="form-label fs-5 fw-bold">
+                            <i class="fas fa-file-export me-2"></i>Formato de saída:
+                        </label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="format-card selected" onclick="selectFormat('excel')">
+                                    <input type="radio" name="outputFormat" id="formatExcel" value="excel" checked class="d-none">
+                                    <div class="text-center">
+                                        <i class="fas fa-file-excel fa-3x text-success mb-3"></i>
+                                        <h5>Excel (.xlsx)</h5>
+                                        <p class="text-muted">Planilha com formatação e cores</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="format-card" onclick="selectFormat('csv')">
+                                    <input type="radio" name="outputFormat" id="formatCSV" value="csv" class="d-none">
+                                    <div class="text-center">
+                                        <i class="fas fa-file-csv fa-3x text-primary mb-3"></i>
+                                        <h5>CSV (.csv)</h5>
+                                        <p class="text-muted">Arquivo de texto separado por vírgulas</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seleção de Diretório -->
+                    <div class="mb-4">
+                        <label class="form-label fs-5 fw-bold">
+                            <i class="fas fa-folder me-2"></i>Pasta de destino:
+                        </label>
+                        <div class="mb-3">
+                            <button type="button" class="btn directory-btn active"
+                                    th:attr="data-path=${commonDirectories?.desktop}">
+                                <i class="fas fa-desktop me-2"></i>Desktop
+                            </button>
+                            <button type="button" class="btn directory-btn"
+                                    th:attr="data-path=${commonDirectories?.documents}">
+                                <i class="fas fa-file-alt me-2"></i>Documentos
+                            </button>
+                            <button type="button" class="btn directory-btn"
+                                    th:attr="data-path=${commonDirectories?.downloads}">
+                                <i class="fas fa-download me-2"></i>Downloads
+                            </button>
+                            <button type="button" class="btn directory-btn"
+                                    th:attr="data-path=${commonDirectories?.home}">
+                                <i class="fas fa-home me-2"></i>Pasta Pessoal
+                            </button>
+                        </div>
+
+                        <div class="input-group">
+                                <span class="input-group-text" style="background-color: var(--claro-red); color: white; border-color: var(--claro-red);">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </span>
+                            <input type="text"
+                                   class="form-control"
+                                   id="outputPath"
+                                   name="outputPath"
+                                   th:value="${commonDirectories?.desktop}"
+                                   placeholder="Ex: C:\Users\SeuNome\Desktop"
+                                   style="border-color: var(--claro-red);"
+                                   required>
+                        </div>
+                        <small class="text-muted">Ou digite um caminho personalizado</small>
+                    </div>
+
+                    <!-- Nome Personalizado -->
+                    <div class="mb-4">
+                        <label for="customFilename" class="form-label fs-5 fw-bold">
+                            <i class="fas fa-edit me-2"></i>Nome do arquivo (opcional):
+                        </label>
+                        <div class="input-group">
+                                <span class="input-group-text" style="background-color: var(--claro-red); color: white; border-color: var(--claro-red);">
+                                    <i class="fas fa-tag"></i>
+                                </span>
+                            <input type="text"
+                                   class="form-control"
+                                   id="customFilename"
+                                   name="customFilename"
+                                   placeholder="Ex: relatorio_claro_vendas"
+                                   style="border-color: var(--claro-red);">
+                        </div>
+                        <small class="text-muted">Se vazio, será gerado automaticamente com timestamp</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success btn-lg me-3 pulse">
+                    <i class="fas fa-rocket me-2"></i>Converter e Salvar
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-lg me-3" onclick="downloadDirect()">
+                    <i class="fas fa-download me-2"></i>Download Direto
+                </button>
+                <button type="reset" class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
+                    <i class="fas fa-redo me-2"></i>Limpar
+                </button>
+            </div>
+        </form>
+
+        <hr class="claro-divider">
+
+        <!-- Informações de Uso -->
+        <div class="info-card mt-4">
+            <h5><i class="fas fa-info-circle me-2"></i>Formato Esperado</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>📋 Separador:</strong> Pipe (|)<br>
+                    <strong>📝 Exemplo básico:</strong><br>
+                    <code>NOME|IDADE|CIDADE</code><br>
+                    <code>João|30|São Paulo</code><br>
+                    <code>Maria|25|Rio de Janeiro</code>
+                </div>
+                <div class="col-md-6">
+                    <strong>📏 Tamanho máximo:</strong> 10MB<br>
+                    <strong>🔤 Encoding:</strong> UTF-8<br>
+                    <strong>📄 Extensão:</strong> .txt apenas
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="footer">
+        <div class="company-logos mb-3">
+            <!-- Versão menor para rodapé -->
+            <div class="company-logo" style="padding: 8px 15px;">
+                <div class="claro-circle-logo" style="width: 30px; height: 30px; font-size: 0.8rem;">
+                    claro
+                </div>
+            </div>
+
+            <div class="company-logo" style="padding: 8px 15px;">
+                <div style="background: linear-gradient(135deg, #0F7CC9 0%, #0B5FA0 100%); color: white; padding: 4px 10px; border-radius: 4px; font-size: 1rem; font-weight: bold;">
+                    SAP
+                </div>
+            </div>
+
+            <div class="company-logo" style="padding: 8px 15px;">
+                <span style="font-size: 1rem; font-weight: bold; color: #5A5A5A;">neoris</span>
+            </div>
+
+            <div class="company-logo" style="padding: 8px 15px;">
+                <div style="display: flex; align-items: center; gap: 3px;">
+                    <div style="width: 8px; height: 8px; background: #00C7D7; transform: rotate(45deg);"></div>
+                    <span style="font-size: 1.2rem; font-weight: bold; color: #5A5A5A;">epam</span>
+                    <div style="width: 0; height: 0; border-left: 5px solid #00C7D7; border-top: 5px solid transparent; border-bottom: 5px solid transparent;"></div>
+                </div>
+            </div>
+        </div>
+        <p class="fs-5">🔧 Conversor TXT para Excel/CSV v1.0</p>
+        <p>Desenvolvido Isaac Nunes</p>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Variáveis globais
+    let selectedFile = null;
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+        setupEventListeners();
+        selectFormat('excel'); // Selecionar Excel por padrão
+    });
+
+    function setupEventListeners() {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        // Drag and drop events
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+
+        // File input change
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Directory buttons
+        document.querySelectorAll('.directory-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                selectDirectory(this.dataset.path, this);
+            });
+        });
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add('dragover');
+    }
+
+    function handleDragLeave(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('dragover');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('dragover');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.name.toLowerCase().endsWith('.txt')) {
+                document.getElementById('fileInput').files = files;
+                handleFileSelect({ target: { files: files } });
+            } else {
+                alert('❌ Apenas arquivos .txt são aceitos!');
+            }
+        }
+    }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) {
+            selectedFile = file;
+            showFileInfo(file);
+            previewFile(file);
+        }
+    }
+
+    function showFileInfo(file) {
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+
+        fileName.textContent = `${file.name} (${formatFileSize(file.size)})`;
+        fileInfo.classList.remove('hidden');
+    }
+
+    function previewFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/preview', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showPreview(data.analysis);
+                } else {
+                    console.error('Erro no preview:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao fazer preview:', error);
+            });
+    }
+
+    function showPreview(analysis) {
+        const previewSection = document.getElementById('previewSection');
+        const previewContent = document.getElementById('previewContent');
+
+        let html = `
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-number">${analysis.totalRecords}</div>
+                            <div class="stats-label">📊 Registros</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-number">${analysis.totalColumns}</div>
+                            <div class="stats-label">📋 Colunas</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-number">${formatFileSize(selectedFile.size)}</div>
+                            <div class="stats-label">📏 Tamanho</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>🏷️ Colunas encontradas:</strong> ${analysis.columns.join(', ')}
+                </div>
+            `;
+
+        if (analysis.preview && analysis.preview.length > 0) {
+            html += '<div class="table-responsive"><table class="table table-striped table-hover">';
+            html += '<thead><tr>';
+            analysis.columns.forEach(col => {
+                html += `<th>${col}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            analysis.preview.forEach(row => {
+                html += '<tr>';
+                analysis.columns.forEach(col => {
+                    html += `<td>${row[col] || ''}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+        }
+
+        previewContent.innerHTML = html;
+        previewSection.classList.remove('hidden');
+    }
+
+    function selectFormat(format) {
+        // Remove seleção anterior
+        document.querySelectorAll('.format-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+
+        // Seleciona novo formato
+        if (format === 'excel') {
+            document.getElementById('formatExcel').checked = true;
+            document.querySelector('[onclick="selectFormat(\'excel\')"]').classList.add('selected');
+        } else {
+            document.getElementById('formatCSV').checked = true;
+            document.querySelector('[onclick="selectFormat(\'csv\')"]').classList.add('selected');
+        }
+    }
+
+    function selectDirectory(path, button) {
+        document.getElementById('outputPath').value = path;
+
+        // Highlight selected button
+        document.querySelectorAll('.directory-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        button.classList.add('active');
+    }
+
+    function downloadDirect() {
+        if (!selectedFile) {
+            alert('❌ Selecione um arquivo primeiro!');
+            return;
+        }
+
+        const format = document.querySelector('input[name="outputFormat"]:checked').value;
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('format', format);
+
+        fetch('/download?' + new URLSearchParams({ format: format }), {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = selectedFile.name.replace('.txt', '') + '_claro_convertido.' + (format === 'csv' ? 'csv' : 'xlsx');
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                // Mostrar sucesso
+                showSuccessMessage('✅ Download realizado com sucesso!');
+            })
+            .catch(error => {
+                alert('❌ Erro ao fazer download: ' + error);
+            });
+    }
+
+    function resetForm() {
+        selectedFile = null;
+        document.getElementById('fileInfo').classList.add('hidden');
+        document.getElementById('previewSection').classList.add('hidden');
+        document.getElementById('uploadForm').reset();
+        selectFormat('excel');
+
+        // Reativar primeiro botão de diretório
+        document.querySelectorAll('.directory-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector('.directory-btn').classList.add('active');
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function showSuccessMessage(message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+        document.querySelector('.main-card').insertBefore(alertDiv, document.querySelector('.main-card').firstChild);
+
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // Adicionar efeito especial para o tema Claro
+    document.addEventListener('DOMContentLoaded', function() {
+        // Efeito de pulso no logo da Claro
+        const claroLogo = document.querySelector('.claro-logo');
+        setInterval(() => {
+            claroLogo.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                claroLogo.style.transform = 'scale(1)';
+            }, 300);
+        }, 3000);
+    });
+</script>
+</body>
+</html>

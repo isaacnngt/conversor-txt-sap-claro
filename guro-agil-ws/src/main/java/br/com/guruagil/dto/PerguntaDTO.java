@@ -13,6 +13,7 @@ public class PerguntaDTO {
         this.alternativas = alternativas;
     }
 
+    //getters e setters
     public String getDescricao() {
         return descricao;
     }
